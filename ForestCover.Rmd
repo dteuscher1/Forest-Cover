@@ -1,27 +1,56 @@
 ---
-title: "ForestCover"
-author: "Matthew Morgan & David Teuscher"
-date: "6/5/2020"
-output: pdf_document
+title: "Forest Cover"
+output: 
+  html_document:
+    toc: TRUE
+    theme: lumen
+    number_sections: TRUE
+    code_folding: show
 ---
+
+# Introduction
+
+The goal of this competition is to predict the forest cover type (the predominant kind of tree cover) from seven different types of tree cover. This study area includes four wilderness areas located in the Roosevelt National Forest of northern Colorado. These areas represent forests with minimal human-caused disturbances, so that existing forest cover types are more a result of ecological processes rather than forest management practices. As a result, the model will need to predict one out of the 7 groups for each area. The training set includeds 15120 observations with 56 variables. The test set is a lot larger than the training set, which means there may be a problem with overfitting. The test set has 565892 observations with 55 variables.
 
 ```{r, message = FALSE}
 library(caret)
 library(tidyverse)
 library(DataExplorer)
 library(beepr)
+library(ggthemes)
 ```
 
+# Exploratory Data Analysis
+
+## Data Structure
+First, I will look at the structure of the data. As mentioned earlier, there are 15120 observations in the training set and 565,892 observations in the test set. There is one ID column, 10 quantitative variables, 44 indicator variables for the wilderness area and the soil type, and in the training set there is the variable for the cover type. 
 ```{r}
 train <- read.csv("train.csv")
 test <- read.csv("test.csv")
+glimpse(train)
+glimpse(test)
 ```
+
+## Missing Values
+
+After understanding the structure of the data, I will look to see how many missing values there are so I can understand how much work will need to be done for data manipulation and cleaning. As the plots below show, this is a complete dataset and there are no missing values. Since there is no need to cleaning the data and impute or remove missing values, I can visualize the data and then begin fitting a model. 
+
+```{r}
+plot_missing(train[,1:30])
+plot_missing(train[, 31:56])
+plot_missing(test[,1:30])
+plot_missing(test[,31:55])
+```
+
+
+## Response Variable Split
 
 ```{r}
 # Histogram to show how many of each forest cover
 ggplot(train, aes(x = as.factor(Cover_Type))) + 
-  geom_bar(fill = "navyblue") + 
-  labs(x = "Cover Type", y = "Frequency")
+  geom_bar(fill = "blue3") + 
+  labs(x = "Cover Type", y = "Frequency") +
+  theme_clean()
 
 # The number of patches for each type of forest cover is approximately equal for all types of forest cover
 ```
@@ -65,7 +94,6 @@ ggplot(train, aes(x=as.factor(Cover_Type), y=Slope)) +
   geom_jitter(alpha = .05, color = "steelblue") +
   geom_boxplot(alpha = .5) +
   labs(x = "Cover Type")
-str(train)
 
 quant_vars <- train %>% select(Elevation, Aspect, Slope, Horizontal_Distance_To_Hydrology, Vertical_Distance_To_Hydrology, Hillshade_9am, Hillshade_Noon, Hillshade_3pm, Horizontal_Distance_To_Fire_Points, Horizontal_Distance_To_Roadways)
 
