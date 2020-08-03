@@ -18,6 +18,7 @@ library(tidyverse)
 library(DataExplorer)
 library(beepr)
 library(ggthemes)
+library(GGally)
 ```
 
 # Exploratory Data Analysis
@@ -45,15 +46,23 @@ plot_missing(test[,31:55])
 
 ## Response Variable Split
 
+I want to look at the split of the response variable for the training set. From the scatterplot below, there are equal number of observationsn for each category, so there is no need to worry about imbalanced classes in the training data. 
+
 ```{r}
 # Histogram to show how many of each forest cover
 ggplot(train, aes(x = as.factor(Cover_Type))) + 
-  geom_bar(fill = "blue3") + 
+  geom_bar(aes(fill = as.factor(Cover_Type)), color = "black") + 
   labs(x = "Cover Type", y = "Frequency") +
-  theme_clean()
+  theme_clean() +
+  scale_x_discrete(labels = c("Spruce/Fir", "Lodgepole", "Ponderosa", "Cottonwood/Willow", " Aspen", "Douglas-fir", "Krummholz")) +
+  scale_fill_viridis_d() +
+  theme(legend.position = "none")
 
 # The number of patches for each type of forest cover is approximately equal for all types of forest cover
 ```
+
+## Relationship between Explanatory Variables
+
 
 ```{r}
 train.eda <- train %>% group_by(Id) %>% pivot_longer(Soil_Type1:Soil_Type40, "SoilType") %>% filter(value == 1) %>% mutate(SoilType = as.numeric(str_extract(SoilType, "[0-9]+"))) %>% select(-value) %>% pivot_longer(Wilderness_Area1:Wilderness_Area4, "WildernessArea") %>% filter(value == 1) %>% mutate(WildernessArea = as.numeric(str_extract(WildernessArea, "[0-9]+"))) %>% select(-value)
@@ -103,6 +112,119 @@ names(quant_vars) <- c("Elevation", "Aspect", "Slope", "H-Hydrology", "V-Hydrolo
 
 corrplot(cor(quant_vars), method = "color", type = "upper", diag = FALSE, addCoef.col = "black", number.digits = 2)
 
+ggcorr(quant_vars, label = TRUE, label_size = 3, label_round = 2, label_alpha = TRUE, hjust = 00.75, size = 3,layout.exp = 1)
+
+library(ggridges)
+library(ggplot2)
+library(viridis)
+library(hrbrthemes)
+
+# Plot
+p1 <- ggplot(train, aes(x = Elevation, y = as.factor(Cover_Type), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(option = "C") +
+  labs(y="") +
+  scale_y_discrete(labels = c("Spruce/Fir - 1", "Lodgepole - 2", "Ponderosa - 3", "Cottonwood/Willow - 4", " Aspen - 5", "Douglas-fir - 6", "Krummholz - 7")) + 
+  theme_ridges() +
+    theme(
+      legend.position="none"
+    )
+
+p2 <- ggplot(train, aes(x = Aspect, y = as.factor(Cover_Type), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(option = "C") +
+  labs(y="") +
+  scale_y_discrete(labels = c("Spruce/Fir - 1", "Lodgepole - 2", "Ponderosa - 3", "Cottonwood/Willow - 4", " Aspen - 5", "Douglas-fir - 6", "Krummholz - 7")) + 
+  theme_ridges() +
+    theme(
+      legend.position="none"
+    )
+
+p3 <- ggplot(train, aes(x = Horizontal_Distance_To_Hydrology, y = as.factor(Cover_Type), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(option = "C") +
+  labs(y="", x = "HD.Hydro") +
+  scale_y_discrete(labels = c("Spruce/Fir - 1", "Lodgepole - 2", "Ponderosa - 3", "Cottonwood/Willow - 4", " Aspen - 5", "Douglas-fir - 6", "Krummholz - 7")) + 
+  theme_ridges() +
+    theme(
+      legend.position="none"
+    )
+
+p4 <- ggplot(train, aes(x = Vertical_Distance_To_Hydrology, y = as.factor(Cover_Type), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(option = "C") +
+  labs(y="", x = "VD.Hydro") +
+  scale_y_discrete(labels = c("Spruce/Fir - 1", "Lodgepole - 2", "Ponderosa - 3", "Cottonwood/Willow - 4", " Aspen - 5", "Douglas-fir - 6", "Krummholz - 7")) + 
+  theme_ridges() +
+    theme(
+      legend.position="none"
+    )
+
+p5 <- ggplot(train, aes(x = Hillshade_9am, y = as.factor(Cover_Type), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(option = "C") +
+  labs(y="", title = "Density Plot of Elevation by Cover Type", x = "VD.Hydro") +
+  scale_y_discrete(labels = c("Spruce/Fir - 1", "Lodgepole - 2", "Ponderosa - 3", "Cottonwood/Willow - 4", " Aspen - 5", "Douglas-fir - 6", "Krummholz - 7")) + 
+  theme_ridges() +
+    theme(
+      legend.position="none"
+    )
+
+p6 <- ggplot(train, aes(x = Slope, y = as.factor(Cover_Type), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(option = "C") +
+  labs(y="", title = "Density Plot of Elevation by Cover Type", x = "VD.Hydro") +
+  scale_y_discrete(labels = c("Spruce/Fir - 1", "Lodgepole - 2", "Ponderosa - 3", "Cottonwood/Willow - 4", " Aspen - 5", "Douglas-fir - 6", "Krummholz - 7")) + 
+  theme_ridges() +
+    theme(
+      legend.position="none"
+    )
+
+p7 <- ggplot(train, aes(x = Hillshade_Noon, y = as.factor(Cover_Type), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(option = "C") +
+  labs(y="", title = "Density Plot of Elevation by Cover Type", x = "VD.Hydro") +
+  scale_y_discrete(labels = c("Spruce/Fir - 1", "Lodgepole - 2", "Ponderosa - 3", "Cottonwood/Willow - 4", " Aspen - 5", "Douglas-fir - 6", "Krummholz - 7")) + 
+  theme_ridges() +
+    theme(
+      legend.position="none"
+    )
+
+p8 <- ggplot(train, aes(x = Hillshade_3pm, y = as.factor(Cover_Type), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(option = "C") +
+  labs(y="", title = "Density Plot of Elevation by Cover Type", x = "VD.Hydro") +
+  scale_y_discrete(labels = c("Spruce/Fir - 1", "Lodgepole - 2", "Ponderosa - 3", "Cottonwood/Willow - 4", " Aspen - 5", "Douglas-fir - 6", "Krummholz - 7")) + 
+  theme_ridges() +
+    theme(
+      legend.position="none"
+    )
+
+p9 <- ggplot(train, aes(x = Horizontal_Distance_To_Fire_Points, y = as.factor(Cover_Type), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(option = "C") +
+  labs(y="", title = "Density Plot of Elevation by Cover Type", x = "VD.Hydro") +
+  scale_y_discrete(labels = c("Spruce/Fir - 1", "Lodgepole - 2", "Ponderosa - 3", "Cottonwood/Willow - 4", " Aspen - 5", "Douglas-fir - 6", "Krummholz - 7")) + 
+  theme_ridges() +
+    theme(
+      legend.position="none"
+    )
+
+p10 <- ggplot(train, aes(x = Horizontal_Distance_To_Roadways, y = as.factor(Cover_Type), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(option = "C") +
+  labs(y="", title = "Density Plot of Elevation by Cover Type", x = "VD.Hydro") +
+  scale_y_discrete(labels = c("Spruce/Fir - 1", "Lodgepole - 2", "Ponderosa - 3", "Cottonwood/Willow - 4", " Aspen - 5", "Douglas-fir - 6", "Krummholz - 7")) + 
+  theme_ridges() +
+    theme(
+      legend.position="none"
+    )
+library(patchwork)
+p1 / p2 
+p3 / p4
+p5 / p6
+p7 / p8
+p9 / p10
 ```
 
 
