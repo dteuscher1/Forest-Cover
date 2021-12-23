@@ -2,8 +2,6 @@
 
 This repository shows work done to analyze forest cover data from the Forest Cover Type Prediction Kaggle competition (https://www.kaggle.com/c/forest-cover-type-prediction/overview). 
 
-The .Rmd file where the analysis was done is available, while an HTML document, `ForestCover.html`, has also been created that includes the code and output as well. A notebook was created on Kaggle for this competition and can be found [here]().
-
 The study area is four wilderness areas from Roosevelt National Forest in Colorado.  These areas represent forests with minimal human-caused disturbances, so that existing forest cover types are more a result of ecological processes rather than forest management practices. The data can be obtained from the UCI machine learning respository (https://archive.ics.uci.edu/ml/datasets/Covertype). This data was not used for the project because it includes the cover type for the test set as well. The data used for the analysis and development of the model from the training set can be downloaded from the Kaggle website. 
 
 The goal of this competition is to predict the forest cover type (the predominant kind of tree cover) from seven different types of tree cover. As a result, the model will need to predict one out of the 7 groups for each area. The training set includeds 15120 observations with 56 variables. The test set is a lot larger than the training set, which means there may be a problem with overfitting. The test set has 565892 observations with 55 variables.
